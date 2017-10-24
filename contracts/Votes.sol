@@ -8,8 +8,8 @@ contract Votes {
         uint weight;
     }
 
-    struct Candidate {
-        string name;
+     struct Candidate {
+        bytes32 name;
         uint vote;
     }
 
@@ -17,35 +17,37 @@ contract Votes {
     Candidate[] public candidates;
     address public owner;
 
-    modifier restricted {
-        if (msg.sender == owner) _;
-    }
-
-    function Votes(string[] candidateNames) {
+    function Votes(bytes32[] candidateNames) {
         owner = msg.sender;
-        for (i = 0; i < candidateNames.length; i++) {
+        for (uint i = 0; i < candidateNames.length; i++) {
             candidates[i].name = candidateNames[i];
             candidates[i].vote = 0;
         }
     }
 
-    function public voting(string candidateName) {
-        address memory voter = msg.sender;
-        voters[voter].voted = 1;
-        
+    function voting(bytes32 candidateName) public {
+        address voter = msg.sender;
+        if (voters[voter].voted == 0) voters[voter].voted = 1;
+        else throw;
+        for (uint i = 0; i < candidates.length; i++) {
+            if (candidates[i].name == candidateName) {
+                candidates[i].vote++;
+            }
+        }
     }
 
-    function public whoWin() constant returns (string candidateName) restricted {
-        string winner;
+    function whoWin() public constant returns (bytes32 candidateName) {
+        if (msg.sender != owner) throw;
+        bytes32 winner;
         uint nbrVote = 0;
-
-        for (i = 0; i < candidates.length; i++) {
+        winner = "ee";
+        for (uint i = 0; i < candidates.length; i++) {
             if (candidates[i].vote > nbrVote) {
                 nbrVote = candidates[i].vote;
                 winner = candidates[i].name;
             }
         }
-        selfdestruct(owner);
+        //selfdestruct(owner);
         return winner;
     }
 }
