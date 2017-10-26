@@ -17,18 +17,20 @@ contract Votes {
     Candidate[] public candidates;
     address public owner;
 
-    function Votes(bytes32[] candidateNames) {
+    function Votes(bytes32[] candidatesName) {
         owner = msg.sender;
-        for (uint i = 0; i < candidateNames.length; i++) {
-            candidates[i].name = candidateNames[i];
-            candidates[i].vote = 0;
-        }
+        for (uint i = 0; i < candidatesName.length; i++) {
+                candidates.push(Candidate({
+                    name: candidatesName[i],
+                    vote: 0
+                }));
+            }
     }
 
     function voting(bytes32 candidateName) public {
         address voter = msg.sender;
+        //require(voters[voter].voted == 0);
         if (voters[voter].voted == 0) voters[voter].voted = 1;
-        else throw;
         for (uint i = 0; i < candidates.length; i++) {
             if (candidates[i].name == candidateName) {
                 candidates[i].vote++;
@@ -37,10 +39,9 @@ contract Votes {
     }
 
     function whoWin() public constant returns (bytes32 candidateName) {
-        if (msg.sender != owner) throw;
+        //require(msg.sender == owner);
         bytes32 winner;
         uint nbrVote = 0;
-        winner = "ee";
         for (uint i = 0; i < candidates.length; i++) {
             if (candidates[i].vote > nbrVote) {
                 nbrVote = candidates[i].vote;
@@ -49,5 +50,13 @@ contract Votes {
         }
         //selfdestruct(owner);
         return winner;
+    }
+    
+    function addCandidate(bytes32 candidateName) public {
+        //require(msg.sender != owner);
+        candidates.push(Candidate({
+            name: candidateName,
+            vote: 0
+            }));
     }
 }
