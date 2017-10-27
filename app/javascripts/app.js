@@ -23,17 +23,19 @@ window.App = {
 
     // Bootstrap the MetaCoin abstraction for Use.
     Votes.setProvider(web3.currentProvider);
-    Votes.deployed(["Etienne"], { from: "0x47767807CDd32d3Bf79558046e3F28135ffb6d62", gas:1000000}).then((votes) => {
+    Votes.at("0x69e910ba4ad835b2b8feb7835507289b5359f708").then((votes) => {
       console.log(votes.address);
+      console.log(votes);
       //votes.whoWin().then((candidate) => { console.log(web3.toAscii(candidate.toString())); });
       //console.log(web3.fromAscii("Etienne"));
-      votes.addCandidate(web3.fromAscii("Etienne"), {from: "0x47767807CDd32d3Bf79558046e3F28135ffb6d62"}).then(() => {
-        console.log("tata");        
-        votes.voting(web3.fromAscii("Etienne"), {from: "0x47767807CDd32d3Bf79558046e3F28135ffb6d62", gas: 1000000}).then(() => {
-          votes.whoWin({from: "0x47767807CDd32d3Bf79558046e3F28135ffb6d62", gas: 1000000}).then((candidateName) => {
+      votes.addCandidate(web3.fromAscii("tim"), {from: web3.eth.accounts[7]}).then(() => {
+        console.log("addCandidate");        
+        votes.voting(web3.fromAscii("ee"), { from: web3.eth.accounts[7]}).then(() => {
+          console.log("voting");
+          votes.whoWin({ from: web3.eth.accounts[7], gas: 1000000}).then((candidateName) => {
             console.log(web3.toAscii(candidateName));
           });
-          console.log("tata");
+          
         })
        });
     });
