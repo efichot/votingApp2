@@ -23,27 +23,46 @@ window.App = {
 
     // Bootstrap the MetaCoin abstraction for Use.
     Votes.setProvider(web3.currentProvider);
-    Votes.at("0x69e910ba4ad835b2b8feb7835507289b5359f708").then((votes) => {
-      console.log(votes.address);
-      console.log(votes);
-      //votes.whoWin().then((candidate) => { console.log(web3.toAscii(candidate.toString())); });
-      //console.log(web3.fromAscii("Etienne"));
-      votes.addCandidate(web3.fromAscii("tim"), {from: web3.eth.accounts[7]}).then(() => {
-        console.log("addCandidate");        
-        votes.voting(web3.fromAscii("ee"), { from: web3.eth.accounts[7]}).then(() => {
-          console.log("voting");
-          votes.whoWin({ from: web3.eth.accounts[7], gas: 1000000}).then((candidateName) => {
-            console.log(web3.toAscii(candidateName));
-          });
-          
-        })
-       });
-    });
-    // Get the initial account balance so it can be displayed.
-  
-  },
-};
+    let address = "0x1f85a2aa5740de9e39952c5eb6565a116656beba";
 
+    Votes.at(address).then((votes) => {
+
+      votes.owner().then((owner1) => {
+        let owner = owner1;
+        if (web3.eth.accounts[0] === owner) {
+          $(".hidden").removeClass("hidden");
+        }
+      });
+
+      $("#addCandidate").click((e) => {
+        let value = $("#newCandidate")[0].value;
+          votes.addCandidate(web3.fromAscii(value), { from: web3.eth.accounts[0], gas: 1000000 }).then(() => {
+          
+          });
+        })
+    });
+      //console.log(typeof value);
+
+    // Votes.at("0xffe9d99bfba995064d4dd4c66e0eff544c40018a").then((votes) => {
+    //   console.log(votes.address);
+    //   console.log(votes);
+    //   //votes.whoWin().then((candidate) => { console.log(web3.toAscii(candidate.toString())); });
+    //   //console.log(web3.fromAscii("Etienne"));
+    //   votes.addCandidate(web3.fromAscii("toto"), {from: web3.eth.accounts[0], gas: 1000000}).then(() => {
+    //     console.log("addCandidate");        
+    //     votes.voting(web3.fromAscii("toto"), { from: web3.eth.accounts[3], gas: 1000000}).then(() => {
+    //       console.log("voting");
+    //       votes.whoWin({ from: web3.eth.accounts[0], gas: 1000000}).then((candidateName) => {
+    //         console.log(web3.toAscii(candidateName));
+    //       });
+          
+    //     })
+    //    });
+    //});
+    // Get the initial account balance so it can be displayed.
+ 
+  },
+}
 window.addEventListener('load', function() {
   // Checking if Web3 has been injected by the browser (Mist/MetaMask)
   if (typeof web3 !== 'undefined') {
