@@ -18,10 +18,12 @@ contract Votes {
     mapping(address => Voter) voters;
     Candidate[] public candidates;
     address public owner;
+    uint public nbCandidate = 0;
 
     function Votes(bytes32[] candidatesName) {
         owner = msg.sender;
         for (uint i = 0; i < candidatesName.length; i++) {
+            nbCandidate++;
                 candidates.push(Candidate({
                     name: candidatesName[i],
                     vote: 0
@@ -56,6 +58,7 @@ contract Votes {
     
     function addCandidate(bytes32 candidateName) public {
         require(msg.sender == owner);
+        nbCandidate++;
         candidates.push(Candidate({
             name: candidateName,
             vote: 0

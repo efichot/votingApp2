@@ -23,23 +23,58 @@ window.App = {
 
     // Bootstrap the MetaCoin abstraction for Use.
     Votes.setProvider(web3.currentProvider);
-    let address = "0x1f85a2aa5740de9e39952c5eb6565a116656beba";
+    let address = "0xe36100480b0cd690009fc10df5afd42644e9472c";
 
     Votes.at(address).then((votes) => {
 
-      votes.owner().then((owner1) => {
-        let owner = owner1;
-        if (web3.eth.accounts[0] === owner) {
-          $(".hidden").removeClass("hidden");
-        }
-      });
+     
 
+      console.log("e");
+      //console.log(web3.toAscii(votes.candidates().name));
+      votes.nbCandidate().then((nb) => {
+        for (let i=0;i < nb; i++) {
+          console.log("kek");  
+          votes.candidates(i).then((candidate) => {
+            console.log("f");
+            let name = web3.toAscii(candidate[0]);
+            let vote = 0;
+            let tr = `<tr><td>${name}</td><td class='hidden'>${vote}</td><td><button>Vote</button></td></tr>`;
+            $("tbody").append(tr);
+          }); 
+
+          votes.owner().then((owner1) => {
+            let owner = owner1;
+            if (web3.eth.accounts[0] === owner) {
+              $(".hidden").removeClass("hidden");
+            }
+          });
+        }
+      })
+     
+     
       $("#addCandidate").click((e) => {
         let value = $("#newCandidate")[0].value;
-          votes.addCandidate(web3.fromAscii(value), { from: web3.eth.accounts[0], gas: 1000000 }).then(() => {
-          
+        votes.addCandidate(web3.fromAscii(value), { from: web3.eth.accounts[0], gas: 1000000 }).then(() => {
+          let vote = 0;
+          let tr = `<tr><td>${value}</td><td class='hidden'>${vote}</td><td><button>Vote</button></td></tr>`;
+          $("tbody").append(tr);
+
+          votes.owner().then((owner1) => {
+            let owner = owner1;
+            if (web3.eth.accounts[0] === owner) {
+              $(".hidden").removeClass("hidden");
+            }
           });
-        })
+        });
+      });
+      $("#whoWin").click((e) => {
+        votes.whoWin({ from: web3.eth.accounts[0], gas: 1000000 }).then((candidate) => {
+          console.log(web3.toAscii(candidate));
+        });
+      });
+    
+
+      
     });
       //console.log(typeof value);
 
