@@ -17,6 +17,12 @@ var Votes = contract(metacoin_artifacts);
 var accounts;
 var account;
 
+function populateTr(name, i) {
+  let vote = 0;
+  let tr = `<tr><td>${name}</td><td class='hidden'>${vote}</td><td><button class='${i} voting'>Vote</button></td></tr>`;
+  $("tbody").append(tr);
+}
+
 window.App = {
   start: function() {
     var self = this;
@@ -27,8 +33,6 @@ window.App = {
 
     Votes.at(address).then((votes) => {
 
-     
-
       console.log("e");
       //console.log(web3.toAscii(votes.candidates().name));
       votes.nbCandidate().then((nb) => {
@@ -37,9 +41,8 @@ window.App = {
           votes.candidates(i).then((candidate) => {
             console.log("f");
             let name = web3.toAscii(candidate[0]);
-            let vote = 0;
-            let tr = `<tr><td>${name}</td><td class='hidden'>${vote}</td><td><button>Vote</button></td></tr>`;
-            $("tbody").append(tr);
+            populateTr(name, i);
+            
           }); 
 
           votes.owner().then((owner1) => {
@@ -48,16 +51,20 @@ window.App = {
               $(".hidden").removeClass("hidden");
             }
           });
+          
+          
         }
+        
       })
      
+      
      
       $("#addCandidate").click((e) => {
         let value = $("#newCandidate")[0].value;
         votes.addCandidate(web3.fromAscii(value), { from: web3.eth.accounts[0], gas: 1000000 }).then(() => {
-          let vote = 0;
-          let tr = `<tr><td>${value}</td><td class='hidden'>${vote}</td><td><button>Vote</button></td></tr>`;
-          $("tbody").append(tr);
+          votes.nbCandidate().then((nb) => {
+            populateTr(value, nb - 1);         
+          });
 
           votes.owner().then((owner1) => {
             let owner = owner1;
