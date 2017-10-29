@@ -29,10 +29,16 @@ window.App = {
 
     // Bootstrap the MetaCoin abstraction for Use.
     Votes.setProvider(web3.currentProvider);
-    let address = "0xe36100480b0cd690009fc10df5afd42644e9472c";
+    let address = "0xc2c5f042b591cef7c901760bd8e645099ef0d7a8";
 
     Votes.at(address).then((votes) => {
-
+      console.log(votes.address);
+      votes.owner().then((owner1) => {
+        let owner = owner1;
+        if (web3.eth.accounts[0] === owner) {
+          $(".hidden").removeClass("hidden");
+        }
+      });
       console.log("e");
       //console.log(web3.toAscii(votes.candidates().name));
       votes.nbCandidate().then((nb) => {
@@ -51,14 +57,9 @@ window.App = {
               $(".hidden").removeClass("hidden");
             }
           });
-          
-          
         }
-        
       })
-     
-      
-     
+
       $("#addCandidate").click((e) => {
         let value = $("#newCandidate")[0].value;
         votes.addCandidate(web3.fromAscii(value), { from: web3.eth.accounts[0], gas: 1000000 }).then(() => {
