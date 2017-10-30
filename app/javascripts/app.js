@@ -17,10 +17,28 @@ var Votes = contract(metacoin_artifacts);
 var accounts;
 var account;
 
-function populateTr(name, i) {
-  let vote = 0;
-  let tr = `<tr><td>${name}</td><td class='hidden'>${vote}</td><td><button class='${i} voting'>Vote</button></td></tr>`;
-  $("tbody").append(tr);
+function populateTr(name, i, votes) {
+  votes.candidates(i).then((candidate) => {
+    console.log(candidate[1].toString())
+    let vote = candidate[1].toString() || '0';  
+    let tr = `<tr><td>${name}</td><td class='hidden'>${vote}</td><td><button class='${i} voting'>Vote</button></td></tr>`;
+    $("tbody").append(tr);
+    votes.owner({ from: web3.eth.accounts[0], gas: 1000000 }).then((owner1) => {
+      let owner = owner1;
+      if (web3.eth.accounts[0] === owner) {
+        $(".hidden").removeClass("hidden");
+      }
+    });
+    $(`.${i}`).click((e) => {
+      console.log(typeof i);
+      votes.voting(web3.toAscii(candidate[0]), { from: web3.eth.accounts[0], gas: 1000000 }).then(() => {
+        console.log(i);
+       
+      });
+     
+    });
+  })
+ 
 }
 
 window.App = {
@@ -29,16 +47,12 @@ window.App = {
 
     // Bootstrap the MetaCoin abstraction for Use.
     Votes.setProvider(web3.currentProvider);
-    let address = "0xc2c5f042b591cef7c901760bd8e645099ef0d7a8";
+    let address = "0xfe2be209e5c93ec6b1a36671bb11387b8a1c7896";
+
+    //Votes.new({ from: web3.eth.accounts[0], gas:1000000 }); // deployed contract
 
     Votes.at(address).then((votes) => {
       console.log(votes.address);
-      votes.owner().then((owner1) => {
-        let owner = owner1;
-        if (web3.eth.accounts[0] === owner) {
-          $(".hidden").removeClass("hidden");
-        }
-      });
       console.log("e");
       //console.log(web3.toAscii(votes.candidates().name));
       votes.nbCandidate().then((nb) => {
@@ -47,31 +61,44 @@ window.App = {
           votes.candidates(i).then((candidate) => {
             console.log("f");
             let name = web3.toAscii(candidate[0]);
-            populateTr(name, i);
+            populateTr(name, i, votes);
             
-          }); 
+            
 
-          votes.owner().then((owner1) => {
-            let owner = owner1;
-            if (web3.eth.accounts[0] === owner) {
-              $(".hidden").removeClass("hidden");
-            }
+            $(`.${i}`).click((e) => {
+              console.log(typeof i);
+              votes.voting(web3.toAscii(candidate[0]), { from: web3.eth.accounts[0], gas: 1000000 }).then(() => {
+                console.log(i);
+                
+                
+
+              });
+              
+
+            });
+
+            
           });
+
+          
+
         }
+        
+
+        votes.owner({ from: web3.eth.accounts[0], gas: 1000000 }).then((owner1) => {
+          let owner = owner1;
+          if (web3.eth.accounts[0] === owner) {
+            $(".hidden").removeClass("hidden");
+          }
+        });
       })
 
       $("#addCandidate").click((e) => {
         let value = $("#newCandidate")[0].value;
         votes.addCandidate(web3.fromAscii(value), { from: web3.eth.accounts[0], gas: 1000000 }).then(() => {
           votes.nbCandidate().then((nb) => {
-            populateTr(value, nb - 1);         
-          });
-
-          votes.owner().then((owner1) => {
-            let owner = owner1;
-            if (web3.eth.accounts[0] === owner) {
-              $(".hidden").removeClass("hidden");
-            }
+            console.log(parseInt(nb, 10));
+            populateTr(value, parseInt(nb, 10) - 1, votes); 
           });
         });
       });
