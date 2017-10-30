@@ -33,7 +33,7 @@ contract Votes {
 
     function voting(bytes32 candidateName) public {
         address voter = msg.sender;
-        //require(voters[voter].voted == 0);
+        require(voters[voter].voted == 0);
         voters[voter].voted = 1;
         for (uint i = 0; i < candidates.length; i++) {
             if (candidates[i].name == candidateName) {
@@ -43,7 +43,7 @@ contract Votes {
     }
 
     function whoWin() public constant returns (bytes32 candidateName) {
-        //require(msg.sender == owner);
+        require(msg.sender == owner);
         bytes32 winner;
         uint nbrVote = 0;
         for (uint i = 0; i < candidates.length; i++) {
@@ -57,7 +57,10 @@ contract Votes {
     }
     
     function addCandidate(bytes32 candidateName) public {
-        //require(msg.sender == owner);
+        require(msg.sender == owner);
+        for (uint i = 0; i < candidates.length; i++) {
+            require(candidates[i].name != candidateName);
+        }
         nbCandidate++;
         candidates.push(Candidate({
             name: candidateName,

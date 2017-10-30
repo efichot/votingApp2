@@ -19,7 +19,6 @@ var account;
 
 function populateTr(name, i, votes) {
   votes.candidates(i).then((candidate) => {
-    console.log(candidate[1].toString())
     let vote = candidate[1].toString() || '0';  
     let tr = `<tr><td>${name}</td><td class='hidden'>${vote}</td><td><button class='${i} voting'>Vote</button></td></tr>`;
     $("tbody").append(tr);
@@ -30,15 +29,10 @@ function populateTr(name, i, votes) {
       }
     });
     $(`.${i}`).click((e) => {
-      console.log(typeof i);
       votes.voting(web3.toAscii(candidate[0]), { from: web3.eth.accounts[0], gas: 1000000 }).then(() => {
-        console.log(i);
-       
       });
-     
     });
   })
- 
 }
 
 window.App = {
@@ -47,44 +41,23 @@ window.App = {
 
     // Bootstrap the MetaCoin abstraction for Use.
     Votes.setProvider(web3.currentProvider);
-    let address = "0xfe2be209e5c93ec6b1a36671bb11387b8a1c7896";
+    let address = "0xc41d5f35d22984ba1934fc78dc3d299cbfa51ecd";
 
-    //Votes.new({ from: web3.eth.accounts[0], gas:1000000 }); // deployed contract
+    //Votes.new(["etienne", "tim"], { from: web3.eth.accounts[0], gas:1000000 }); // deployed contract
 
     Votes.at(address).then((votes) => {
-      console.log(votes.address);
-      console.log("e");
-      //console.log(web3.toAscii(votes.candidates().name));
       votes.nbCandidate().then((nb) => {
         for (let i=0;i < nb; i++) {
-          console.log("kek");  
           votes.candidates(i).then((candidate) => {
-            console.log("f");
             let name = web3.toAscii(candidate[0]);
             populateTr(name, i, votes);
-            
-            
-
             $(`.${i}`).click((e) => {
-              console.log(typeof i);
               votes.voting(web3.toAscii(candidate[0]), { from: web3.eth.accounts[0], gas: 1000000 }).then(() => {
-                console.log(i);
-                
-                
-
               });
-              
-
             });
-
-            
           });
-
-          
-
         }
-        
-
+ 
         votes.owner({ from: web3.eth.accounts[0], gas: 1000000 }).then((owner1) => {
           let owner = owner1;
           if (web3.eth.accounts[0] === owner) {
@@ -97,7 +70,6 @@ window.App = {
         let value = $("#newCandidate")[0].value;
         votes.addCandidate(web3.fromAscii(value), { from: web3.eth.accounts[0], gas: 1000000 }).then(() => {
           votes.nbCandidate().then((nb) => {
-            console.log(parseInt(nb, 10));
             populateTr(value, parseInt(nb, 10) - 1, votes); 
           });
         });
@@ -105,32 +77,10 @@ window.App = {
       $("#whoWin").click((e) => {
         votes.whoWin({ from: web3.eth.accounts[0], gas: 1000000 }).then((candidate) => {
           console.log(web3.toAscii(candidate));
+          $('.winner').html(web3.toAscii(candidate));
         });
       });
-    
-
-      
     });
-      //console.log(typeof value);
-
-    // Votes.at("0xffe9d99bfba995064d4dd4c66e0eff544c40018a").then((votes) => {
-    //   console.log(votes.address);
-    //   console.log(votes);
-    //   //votes.whoWin().then((candidate) => { console.log(web3.toAscii(candidate.toString())); });
-    //   //console.log(web3.fromAscii("Etienne"));
-    //   votes.addCandidate(web3.fromAscii("toto"), {from: web3.eth.accounts[0], gas: 1000000}).then(() => {
-    //     console.log("addCandidate");        
-    //     votes.voting(web3.fromAscii("toto"), { from: web3.eth.accounts[3], gas: 1000000}).then(() => {
-    //       console.log("voting");
-    //       votes.whoWin({ from: web3.eth.accounts[0], gas: 1000000}).then((candidateName) => {
-    //         console.log(web3.toAscii(candidateName));
-    //       });
-          
-    //     })
-    //    });
-    //});
-    // Get the initial account balance so it can be displayed.
- 
   },
 }
 window.addEventListener('load', function() {
