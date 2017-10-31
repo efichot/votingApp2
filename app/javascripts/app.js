@@ -29,6 +29,7 @@ function populateTr(name, i, votes) {
       }
     });
     $(`.${i}`).click((e) => {
+      $('.voting').attr('disabled', true);      
       votes.voting(web3.toAscii(candidate[0]), { from: web3.eth.accounts[0], gas: 1000000 }).then(() => {
       });
     });
@@ -52,6 +53,7 @@ window.App = {
             let name = web3.toAscii(candidate[0]);
             populateTr(name, i, votes);
             $(`.${i}`).click((e) => {
+              $('.voting').attr('disabled', true);              
               votes.voting(web3.toAscii(candidate[0]), { from: web3.eth.accounts[0], gas: 1000000 }).then(() => {
               });
             });
