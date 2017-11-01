@@ -52,7 +52,7 @@ window.App = {
 
     // Bootstrap the MetaCoin abstraction for Use.
     Votes.setProvider(web3.currentProvider);
-    let address = "0xcb5a7d708e044f747674e5d2446bc38e64b7e9fb";
+    let address = "0xcbe3f2d4fbcb2c3babf2eb0cff8b1e7679633b4b";
 
     //Votes.new(["etienne", "tim"], { from: web3.eth.accounts[0], gas:1000000 }); // deployed contract
 

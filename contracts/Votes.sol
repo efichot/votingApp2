@@ -33,11 +33,15 @@ contract Votes {
 
     function voting(bytes32 candidateName) public {
         address voter = msg.sender;
-        require(voters[voter].voted == 0);
-        for (uint i = 0; i < candidates.length; i++) {
-            if (candidates[i].name == candidateName) {
-                candidates[i].vote++;
-                voters[voter].voted = i + 1;
+        if (voters[voter].voted != 0) {
+            candidates[voters[voter].voted - 1].vote--;
+            voters[voter].voted = 0;
+        } else {
+            for (uint i = 0; i < candidates.length; i++) {
+                if (candidates[i].name == candidateName) {
+                    candidates[i].vote++;
+                    voters[voter].voted = i + 1;
+                }
             }
         }
     }
