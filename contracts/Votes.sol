@@ -4,15 +4,12 @@ contract Votes {
     
     struct Voter {
         uint voted;
-        bytes32 name;
-        bytes32 surname;
-        address delegate;
-        uint weight;
     }
 
      struct Candidate {
         bytes32 name;
         uint vote;
+        address owner;
     }
 
     mapping(address => Voter) public voters;
@@ -26,7 +23,8 @@ contract Votes {
             nbCandidate++;
                 candidates.push(Candidate({
                     name: candidatesName[i],
-                    vote: 0
+                    vote: 0,
+                    owner: 0
                 }));
             }
     }
@@ -61,14 +59,16 @@ contract Votes {
     }
     
     function addCandidate(bytes32 candidateName) public {
-        require(msg.sender == owner);
+        //require(msg.sender == owner);
         for (uint i = 0; i < candidates.length; i++) {
+            require(candidates[i].owner != msg.sender);
             require(candidates[i].name != candidateName);
         }
         nbCandidate++;
         candidates.push(Candidate({
             name: candidateName,
-            vote: 0
+            vote: 0,
+            owner: msg.sender
             }));
     }
 

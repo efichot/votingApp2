@@ -17,32 +17,34 @@ var Votes = contract(metacoin_artifacts);
 var accounts;
 var account;
 
+let nbVotes = 0;
+let voteLog = [0];
+
 function populateTr(name, i, votes) {
   votes.candidates(i).then(candidate => {
-    //console.log(votes.voters);
-    votes.voters(web3.eth.accounts[0]).then((voter) => {
-      //console.log("test1");
-      let vote = candidate[1].toString() || '0';
-      let tr = `<tr><td>${name}</td><td class='hidden'>${vote}</td><td><button class='${i} voting'>Vote</button></td></tr>`;    
-      $("tbody").append(tr);
-      if (voter[0]['c'][0] != 0 && voter[0]['c'][0] - 1 != i) {
-        // console.log(voter);
-        // console.log(voter[0]);
-        // console.log(voter[0]['c'][0]);
-        // console.log(i);
-        $(`.${i}`).attr('disabled', true);
-      }
-      votes.owner({ from: web3.eth.accounts[0], gas: 1000000 }).then((owner1) => {
+    votes.nbCandidate().then(nb => {
+      votes.voters(web3.eth.accounts[0]).then((voter) => {
+        let vote = candidate[1].toString() || '0';
+        voteLog[i] = parseInt(vote, 10);
+        let tr = `<tr><td>${name}</td><td class='hidden'>${vote}</td><td><button class='${i} voting'>Vote</button></td></tr>`;    
+        $("tbody").append(tr);
+        if (voter.toString() != '0' && parseInt(voter.toString(), 10) - 1 != i) {
+          $(`.${i}`).attr('disabled', true);
+        }
+        votes.owner({ from: web3.eth.accounts[0], gas: 1000000 }).then((owner1) => {
         let owner = owner1;
         if (web3.eth.accounts[0] === owner) {
           $(".hidden").removeClass("hidden");
         }
-      });
-      $(`.${i}`).click((e) => {
-        votes.voting(web3.toAscii(candidate[0]), { from: web3.eth.accounts[0], gas: 1000000 }).then(() => {
+        });
+        $(`.${i}`).click((e) => {
+          votes.voting(web3.toAscii(candidate[0]), { from: web3.eth.accounts[0], gas: 1000000 }).then(() => {
+          });
         });
       });
-    });
+      nbVotes = parseInt(nbVotes, 10) + parseInt(candidate[1], 10);
+      $(".nbVotes").html(nbVotes);
+    })
   })
 }
 
@@ -50,9 +52,8 @@ window.App = {
   start: function() {
     var self = this;
 
-    // Bootstrap the MetaCoin abstraction for Use.
     Votes.setProvider(web3.currentProvider);
-    let address = "0xcbe3f2d4fbcb2c3babf2eb0cff8b1e7679633b4b";
+    let address = "0x5dbd111f110144fb1566bc0294e4668c1114456c";
 
     //Votes.new(["etienne", "tim"], { from: web3.eth.accounts[0], gas:1000000 }); // deployed contract
 
@@ -63,13 +64,13 @@ window.App = {
             let name = web3.toAscii(candidate[0]);
             populateTr(name, i, votes);
             $(`.${i}`).click((e) => {
-              $('.voting').attr('disabled', true);              
+              $('.voting').attr('disabled', true); //il faudrait tout disabled sauf le i          
               votes.voting(web3.toAscii(candidate[0]), { from: web3.eth.accounts[0], gas: 1000000 }).then(() => {
               });
             });
           });
         }
- 
+    
         votes.owner({ from: web3.eth.accounts[0], gas: 1000000 }).then((owner1) => {
           let owner = owner1;
           if (web3.eth.accounts[0] === owner) {
@@ -86,6 +87,35 @@ window.App = {
           });
         });
       });
+
+      $("#whatPosition").click((e) => {
+        votes.nbCandidate().then((nb) => {
+          for (let j = 0; j < nb; j++) {
+            votes.candidates(j).then((candidate_j) => {
+              let x = 0;
+              if (candidate_j[2].toString() == web3.eth.accounts[0].toString()) {
+                let userVote = parseInt(candidate_j[1].toString(), 10);
+                for (let k = 0; k < nb; k++) {
+                  let tmpVote = voteLog[k];
+                  if (j != k && x != -1 && userVote == tmpVote) {
+                    x++;
+                  } else if (j != k && x != -1 && userVote < tmpVote) {
+                    x = -1;
+                  }
+                }
+                if (x == -1) {
+                  $(".position").html("You are currently losing the vote.");
+                } else if (x == 0) {
+                  $(".position").html("You are currently winning the vote.");
+                } else {
+                  $(".position").html("You are currently tied for the first place with others.");
+                }
+              }
+            });
+          }
+        });
+      });
+
       $("#whoWin").click((e) => {
         votes.whoWin({ from: web3.eth.accounts[0], gas: 1000000 }).then((candidate) => {
           console.log(web3.toAscii(candidate));
