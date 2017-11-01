@@ -15,7 +15,7 @@ contract Votes {
         uint vote;
     }
 
-    mapping(address => Voter) voters;
+    mapping(address => Voter) public voters;
     Candidate[] public candidates;
     address public owner;
     uint public nbCandidate;
@@ -34,10 +34,10 @@ contract Votes {
     function voting(bytes32 candidateName) public {
         address voter = msg.sender;
         require(voters[voter].voted == 0);
-        voters[voter].voted = 1;
         for (uint i = 0; i < candidates.length; i++) {
             if (candidates[i].name == candidateName) {
                 candidates[i].vote++;
+                voters[voter].voted = i + 1;
             }
         }
     }

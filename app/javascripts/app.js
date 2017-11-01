@@ -18,19 +18,29 @@ var accounts;
 var account;
 
 function populateTr(name, i, votes) {
-  votes.candidates(i).then((candidate) => {
-    let vote = candidate[1].toString() || '0';  
-    let tr = `<tr><td>${name}</td><td class='hidden'>${vote}</td><td><button class='${i} voting'>Vote</button></td></tr>`;
-    $("tbody").append(tr);
-    votes.owner({ from: web3.eth.accounts[0], gas: 1000000 }).then((owner1) => {
-      let owner = owner1;
-      if (web3.eth.accounts[0] === owner) {
-        $(".hidden").removeClass("hidden");
+  votes.candidates(i).then(candidate => {
+    //console.log(votes.voters);
+    votes.voters(web3.eth.accounts[0]).then((voter) => {
+      //console.log("test1");
+      let vote = candidate[1].toString() || '0';
+      let tr = `<tr><td>${name}</td><td class='hidden'>${vote}</td><td><button class='${i} voting'>Vote</button></td></tr>`;    
+      $("tbody").append(tr);
+      if (voter[0]['c'][0] != 0 && voter[0]['c'][0] - 1 != i) {
+        // console.log(voter);
+        // console.log(voter[0]);
+        // console.log(voter[0]['c'][0]);
+        // console.log(i);
+        $(`.${i}`).attr('disabled', true);
       }
-    });
-    $(`.${i}`).click((e) => {
-      $('.voting').attr('disabled', true);      
-      votes.voting(web3.toAscii(candidate[0]), { from: web3.eth.accounts[0], gas: 1000000 }).then(() => {
+      votes.owner({ from: web3.eth.accounts[0], gas: 1000000 }).then((owner1) => {
+        let owner = owner1;
+        if (web3.eth.accounts[0] === owner) {
+          $(".hidden").removeClass("hidden");
+        }
+      });
+      $(`.${i}`).click((e) => {
+        votes.voting(web3.toAscii(candidate[0]), { from: web3.eth.accounts[0], gas: 1000000 }).then(() => {
+        });
       });
     });
   })
@@ -42,7 +52,7 @@ window.App = {
 
     // Bootstrap the MetaCoin abstraction for Use.
     Votes.setProvider(web3.currentProvider);
-    let address = "0xc41d5f35d22984ba1934fc78dc3d299cbfa51ecd";
+    let address = "0xcb5a7d708e044f747674e5d2446bc38e64b7e9fb";
 
     //Votes.new(["etienne", "tim"], { from: web3.eth.accounts[0], gas:1000000 }); // deployed contract
 
