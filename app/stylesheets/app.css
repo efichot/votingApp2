@@ -54,3 +54,7 @@ h3 {
 .hidden {
   display: none;
 }
+
+.myCandidate {
+  color: red;
+}

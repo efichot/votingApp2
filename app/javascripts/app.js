@@ -26,7 +26,13 @@ function populateTr(name, i, votes) {
       votes.voters(web3.eth.accounts[0]).then((voter) => {
         let vote = candidate[1].toString() || '0';
         voteLog[i] = parseInt(vote, 10);
-        let tr = `<tr><td>${name}</td><td class='hidden'>${vote}</td><td><button class='${i} voting'>Vote</button></td></tr>`;    
+        let tr = '';
+        // console.log(candidate[2].toString());
+        // console.log(web3.eth.accounts[0].toString());
+        let classe = '';
+        if (candidate[2].toString() == web3.eth.accounts[0].toString())
+          classe = 'myCandidate';
+        tr = `<tr><td class = ${classe}>${name}</td><td class='hidden'>${vote}</td><td><button class='${i} voting'>Vote</button></td></tr>`;
         $("tbody").append(tr);
         if (voter.toString() != '0' && parseInt(voter.toString(), 10) - 1 != i) {
           $(`.${i}`).attr('disabled', true);
@@ -53,10 +59,13 @@ window.App = {
     var self = this;
 
     Votes.setProvider(web3.currentProvider);
-    let address = "0x1f85a2aa5740de9e39952c5eb6565a116656beba";
+    let address = "0x060d84a20397f51e84365770663fb1657bd6cd03";
 
-    //Votes.new(["etienne", "tim"], { from: web3.eth.accounts[0], gas:1000000 }); // deployed contract
+    //Votes.new({ from: web3.eth.accounts[0], gas:1000000 }); // deployed contract
 
+
+    //fill the table with current candidates
+    //we loop through the candidate 
     Votes.at(address).then((votes) => {
       votes.nbCandidate().then((nb) => {
         for (let i=0;i < nb; i++) {
@@ -79,7 +88,10 @@ window.App = {
         });
       })
 
-
+      //check if the user doens't already add a candidate and if the candidate's name isn't already taken.
+      //we loop through all candidate and y++ if the candidate is different from the candidate the user want to add.
+      //if y == nb (current nb of candidate) means the candidate the user wants to add has a unique name and is the first add of the user.
+      //then we add the candidate.
       $("#addCandidate").click((e) => {
         let value = $("#newCandidate")[0].value;
         let y = 0;
@@ -89,8 +101,11 @@ window.App = {
             votes.candidates(i).then((candidate) => {
               if (web3.toAscii(candidate[0]) != value && candidate[2].toString() != web3.eth.accounts[0].toString()) {
                 y++;
+                // console.log(candidate[0].toString() != value);
+                // console.log(candidate[0].toString());
+                // console.log(y);
               }
-              if (i == nb - 1 && y == nb) {
+              if (i == nb - 1 && y == nb) { //add meme si meme nom qu'un autre candidat, "web3.toAscii(candidate[0]) !== value" ne marche pas
                 votes.addCandidate(web3.fromAscii(value), { from: web3.eth.accounts[0], gas: 1000000 }).then(() => {
                   populateTr(value, parseInt(nb, 10) - 1, votes);
                 })
@@ -99,17 +114,28 @@ window.App = {
               }
             });
           }
+
+          if (nb == 0) {
+            console.log("test");
+            votes.addCandidate(web3.fromAscii(value), { from: web3.eth.accounts[0], gas: 1000000 }).then(() => {
+              populateTr(value, parseInt(nb, 10) - 1, votes);
+            })
+          }
         });
       });
 
 
+      //if you added a candidate, check if you have the most votes -> winning, tied for the first place or losing.
+      //we loop through all candidate and use a dummy variable (x) to parse the votes.
+      //we use voteLog, filled in "populateTr" with the current votes.
       $("#whatPosition").click((e) => {
         votes.nbCandidate().then((nb) => {
+          let userVote = -1;
           for (let j = 0; j < nb; j++) {
             votes.candidates(j).then((candidate_j) => {
               let x = 0;
               if (candidate_j[2].toString() == web3.eth.accounts[0].toString()) {
-                let userVote = parseInt(candidate_j[1].toString(), 10);
+                userVote = parseInt(candidate_j[1].toString(), 10);
                 for (let k = 0; k < nb; k++) {
                   let tmpVote = voteLog[k];
                   if (j != k && x != -1 && userVote == tmpVote) {
@@ -123,23 +149,30 @@ window.App = {
                 } else if (x == 0) {
                   $(".position").html("You are currently winning the vote.");
                 } else {
-                  $(".position").html("You are currently tied for the first place with others.");
+                  $(".position").html("You are currently tied for the first place with " + x + " other project."); 
                 }
+              }
+              if (userVote == -1) { //sinon hidden le button
+                $(".position").html("You don't have any candidates.");
               }
             });
           }
         });
       });
 
+      //only the owner can check who wins. Close the election ?
       $("#whoWin").click((e) => {
         votes.whoWin({ from: web3.eth.accounts[0], gas: 1000000 }).then((candidate) => {
           console.log(web3.toAscii(candidate));
           $('.winner').html(web3.toAscii(candidate));
+          //self destruct /  arret de l'election ?
         });
       });
     });
   },
 }
+
+
 window.addEventListener('load', function() {
   // Checking if Web3 has been injected by the browser (Mist/MetaMask)
   if (typeof web3 !== 'undefined') {
