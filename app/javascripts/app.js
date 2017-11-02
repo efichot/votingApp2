@@ -53,7 +53,7 @@ window.App = {
     var self = this;
 
     Votes.setProvider(web3.currentProvider);
-    let address = "0x5dbd111f110144fb1566bc0294e4668c1114456c";
+    let address = "0x1f85a2aa5740de9e39952c5eb6565a116656beba";
 
     //Votes.new(["etienne", "tim"], { from: web3.eth.accounts[0], gas:1000000 }); // deployed contract
 
@@ -79,14 +79,29 @@ window.App = {
         });
       })
 
+
       $("#addCandidate").click((e) => {
         let value = $("#newCandidate")[0].value;
-        votes.addCandidate(web3.fromAscii(value), { from: web3.eth.accounts[0], gas: 1000000 }).then(() => {
-          votes.nbCandidate().then((nb) => {
-            populateTr(value, parseInt(nb, 10) - 1, votes); 
-          });
+        let y = 0;
+        //console.log(web3.eth.accounts[0]);
+        votes.nbCandidate().then((nb) => {
+          for (let i = 0; i < nb; i++) {
+            votes.candidates(i).then((candidate) => {
+              if (web3.toAscii(candidate[0]) != value && candidate[2].toString() != web3.eth.accounts[0].toString()) {
+                y++;
+              }
+              if (i == nb - 1 && y == nb) {
+                votes.addCandidate(web3.fromAscii(value), { from: web3.eth.accounts[0], gas: 1000000 }).then(() => {
+                  populateTr(value, parseInt(nb, 10) - 1, votes);
+                })
+              } else if (i == nb - 1 && y != nb) {
+                $(".error").html("You can't add a new candidate. Check if you haven't already add your project or if the project's name isn't already taken.");
+              }
+            });
+          }
         });
       });
+
 
       $("#whatPosition").click((e) => {
         votes.nbCandidate().then((nb) => {
