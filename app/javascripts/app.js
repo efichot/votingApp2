@@ -21,27 +21,29 @@ let nbVotes = 0;
 let voteLog = [0];
 
 function populateTr(name, i, votes) {
-  votes.candidates(i).then(candidate => {
-    votes.nbCandidate().then(nb => {
-      votes.voters(web3.eth.accounts[0]).then((voter) => {
+  votes.candidates(i)
+  .then(candidate => { votes.nbCandidate()
+    .then(nb => { votes.voters(web3.eth.accounts[0])
+      .then((voter) => {
         let vote = candidate[1].toString() || '0';
         voteLog[i] = parseInt(vote, 10);
         let tr = '';
-        // console.log(candidate[2].toString());
-        // console.log(web3.eth.accounts[0].toString());
         let classe = '';
-        if (candidate[2].toString() == web3.eth.accounts[0].toString())
+        if (candidate[2].toString() == web3.eth.accounts[0].toString()) {
           classe = 'myCandidate';
+          $('.classCandidate').attr('hidden', true);
+        }
         tr = `<tr><td class = ${classe}>${name}</td><td class='hidden'>${vote}</td><td><button class='${i} voting'>Vote</button></td></tr>`;
         $("tbody").append(tr);
         if (voter.toString() != '0' && parseInt(voter.toString(), 10) - 1 != i) {
           $(`.${i}`).attr('disabled', true);
         }
-        votes.owner({ from: web3.eth.accounts[0], gas: 1000000 }).then((owner1) => {
-        let owner = owner1;
-        if (web3.eth.accounts[0] === owner) {
-          $(".hidden").removeClass("hidden");
-        }
+        votes.owner({ from: web3.eth.accounts[0], gas: 1000000 })
+        .then((owner1) => {
+          let owner = owner1;
+          if (web3.eth.accounts[0] === owner) {
+           $(".hidden").removeClass("hidden");
+          }
         });
         $(`.${i}`).click((e) => {
           votes.voting(web3.toAscii(candidate[0]), { from: web3.eth.accounts[0], gas: 1000000 }).then(() => {
@@ -49,7 +51,7 @@ function populateTr(name, i, votes) {
         });
       });
       nbVotes = parseInt(nbVotes, 10) + parseInt(candidate[1], 10);
-      $(".nbVotes").html(nbVotes);
+      $(".nbVotes").html(nbVotes + " person have voted.");
     })
   })
 }
@@ -59,17 +61,18 @@ window.App = {
     var self = this;
 
     Votes.setProvider(web3.currentProvider);
-    let address = "0x060d84a20397f51e84365770663fb1657bd6cd03";
+    let address = "0x60c35208b8d0c840e9ae60aa06e4e3e63f0a3c4f";
 
     //Votes.new({ from: web3.eth.accounts[0], gas:1000000 }); // deployed contract
 
 
     //fill the table with current candidates
     //we loop through the candidate 
-    Votes.at(address).then((votes) => {
-      votes.nbCandidate().then((nb) => {
+    Votes.at(address)
+    .then((votes) => { votes.nbCandidate().then((nb) => {
         for (let i=0;i < nb; i++) {
-          votes.candidates(i).then((candidate) => {
+          votes.candidates(i)
+          .then((candidate) => {
             let name = web3.toAscii(candidate[0]);
             populateTr(name, i, votes);
             $(`.${i}`).click((e) => {
@@ -80,7 +83,8 @@ window.App = {
           });
         }
     
-        votes.owner({ from: web3.eth.accounts[0], gas: 1000000 }).then((owner1) => {
+        votes.owner({ from: web3.eth.accounts[0], gas: 1000000 })
+        .then((owner1) => {
           let owner = owner1;
           if (web3.eth.accounts[0] === owner) {
             $(".hidden").removeClass("hidden");
@@ -95,18 +99,17 @@ window.App = {
       $("#addCandidate").click((e) => {
         let value = $("#newCandidate")[0].value;
         let y = 0;
-        //console.log(web3.eth.accounts[0]);
-        votes.nbCandidate().then((nb) => {
+        votes.nbCandidate()
+        .then((nb) => {
           for (let i = 0; i < nb; i++) {
-            votes.candidates(i).then((candidate) => {
+            votes.candidates(i)
+            .then((candidate) => {
               if (web3.toAscii(candidate[0]) != value && candidate[2].toString() != web3.eth.accounts[0].toString()) {
                 y++;
-                // console.log(candidate[0].toString() != value);
-                // console.log(candidate[0].toString());
-                // console.log(y);
               }
               if (i == nb - 1 && y == nb) { //add meme si meme nom qu'un autre candidat, "web3.toAscii(candidate[0]) !== value" ne marche pas
-                votes.addCandidate(web3.fromAscii(value), { from: web3.eth.accounts[0], gas: 1000000 }).then(() => {
+                votes.addCandidate(web3.fromAscii(value), { from: web3.eth.accounts[0], gas: 1000000 })
+                .then(() => {
                   populateTr(value, parseInt(nb, 10) - 1, votes);
                 })
               } else if (i == nb - 1 && y != nb) {
@@ -116,9 +119,9 @@ window.App = {
           }
 
           if (nb == 0) {
-            console.log("test");
-            votes.addCandidate(web3.fromAscii(value), { from: web3.eth.accounts[0], gas: 1000000 }).then(() => {
-              populateTr(value, parseInt(nb, 10) - 1, votes);
+            votes.addCandidate(web3.fromAscii(value), { from: web3.eth.accounts[0], gas: 1000000 })
+            .then(() => {
+              populateTr(value, parseInt(nb, 10), votes);
             })
           }
         });
@@ -129,10 +132,12 @@ window.App = {
       //we loop through all candidate and use a dummy variable (x) to parse the votes.
       //we use voteLog, filled in "populateTr" with the current votes.
       $("#whatPosition").click((e) => {
-        votes.nbCandidate().then((nb) => {
+        votes.nbCandidate()
+        .then((nb) => {
           let userVote = -1;
           for (let j = 0; j < nb; j++) {
-            votes.candidates(j).then((candidate_j) => {
+            votes.candidates(j)
+            .then((candidate_j) => {
               let x = 0;
               if (candidate_j[2].toString() == web3.eth.accounts[0].toString()) {
                 userVote = parseInt(candidate_j[1].toString(), 10);
@@ -162,8 +167,8 @@ window.App = {
 
       //only the owner can check who wins. Close the election ?
       $("#whoWin").click((e) => {
-        votes.whoWin({ from: web3.eth.accounts[0], gas: 1000000 }).then((candidate) => {
-          console.log(web3.toAscii(candidate));
+        votes.whoWin({ from: web3.eth.accounts[0], gas: 1000000 })
+        .then((candidate) => {
           $('.winner').html(web3.toAscii(candidate));
           //self destruct /  arret de l'election ?
         });

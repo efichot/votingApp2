@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>MetaCoin - Truffle Webpack Demo w/ Frontend</title>
+  <title>Etienne and Timothy's Voting App</title>
   <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
@@ -9,13 +9,15 @@
   <script src="./app.js"></script>
 </head>
 <body>
-  <h1>Vote</h1>
+  <h1>Etienne and Timothy's Voting App !</h1>
   <h2>Vote for the best project.</h2>
 
-  <div>
-    <h1>Only visible for me</h1>
-    <input type="text" id="newCandidate">
-    <input type="button" value="add" id="addCandidate">
+  <div class="classCandidate">
+    <h1 class="classCandidate">Here you can add your project's name.</h3>
+    <input type="text" class="classCandidate" id="newCandidate">
+    <input type="button" class="classCandidate" value="add" id="addCandidate">
+  </div>
+  <div><h1 class='hidden'>Only visible for owner</h1>
     <input class='hidden' type="button" value="Winner" id="whoWin">
     <h2 class='winner hidden'></h2>
   </div>
@@ -39,10 +41,9 @@
   </div>
   <div>
     <h3 class='nbVotes'></h3>
-    <h3> address have voted</h3>
     <input type="button" value="Am I winning ?" id="whatPosition">
-    <h2 class='position'></h2>
-    <h2 class='error'></h2>
+    <h3 class='position'></h3>
+    <h3 class='error'></h3>
   </div>
 </body>
 </html>
